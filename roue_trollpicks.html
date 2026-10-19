@@ -1,0 +1,2183 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>TrollPicks — League of Legends</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --bg: #05070d;
+      --panel: #0b101a;
+      --gold: #c89b3c;
+      --gold-light: #f0e6d2;
+      --blue: #0ac8b9;
+      --text: #f5f5f5;
+      --muted: #7f8c9d;
+      --danger: #ff4655;
+    }
+
+    body {
+      min-height: 100vh;
+      font-family: Inter, Arial, sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at 50% -20%, #18334a 0%, transparent 40%),
+        radial-gradient(circle at 10% 80%, #111b2d 0%, transparent 35%),
+        var(--bg);
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      opacity: 0.08;
+      background-image:
+        linear-gradient(rgba(255,255,255,.08) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,.08) 1px, transparent 1px);
+      background-size: 50px 50px;
+    }
+
+    header {
+      text-align: center;
+      padding: 40px 20px 15px;
+    }
+
+    .logo {
+      font-size: clamp(2.4rem, 6vw, 5rem);
+      font-weight: 1000;
+      font-style: italic;
+      letter-spacing: -4px;
+      text-transform: uppercase;
+      background: linear-gradient(
+        180deg,
+        #fff7df,
+        #c89b3c 60%,
+        #7a5316
+      );
+      -webkit-background-clip: text;
+      color: transparent;
+      filter: drop-shadow(0 0 20px rgba(200,155,60,.18));
+    }
+
+    .logo span {
+      color: var(--danger);
+      -webkit-text-fill-color: var(--danger);
+    }
+
+    .subtitle {
+      margin-top: 8px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 5px;
+      font-size: .8rem;
+      font-weight: 800;
+    }
+
+    .app {
+      width: min(1500px, 95%);
+      margin: 25px auto 80px;
+    }
+
+    .wheels {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 30px;
+    }
+
+    .card {
+      position: relative;
+      background:
+        linear-gradient(145deg, rgba(17,26,42,.96), rgba(5,8,14,.96));
+      border: 1px solid rgba(200,155,60,.22);
+      border-radius: 22px;
+      padding: 30px;
+      overflow: hidden;
+      box-shadow:
+        0 25px 60px rgba(0,0,0,.4),
+        inset 0 1px 0 rgba(255,255,255,.04);
+    }
+
+    .card::before {
+      content: "";
+      position: absolute;
+      width: 200px;
+      height: 200px;
+      border-radius: 50%;
+      background: rgba(10,200,185,.05);
+      filter: blur(60px);
+      right: -50px;
+      top: -50px;
+      pointer-events: none;
+    }
+
+    .step {
+      font-size: .7rem;
+      color: var(--gold);
+      font-weight: 900;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+    }
+
+    h2 {
+      margin-top: 5px;
+      font-size: 1.8rem;
+      text-transform: uppercase;
+      font-style: italic;
+    }
+
+    /* =====================================================
+       CASINO CHAMPION
+    ===================================================== */
+
+    .casino {
+      position: relative;
+      width: 100%;
+      margin: 100px auto 80px;
+    }
+
+    .casino-window {
+      position: relative;
+      width: 100%;
+      height: 280px;
+      overflow: hidden;
+      border: 1px solid rgba(200,155,60,.3);
+      border-radius: 16px;
+      background:
+        linear-gradient(
+          180deg,
+          rgba(255,255,255,.025),
+          transparent 30%,
+          transparent 70%,
+          rgba(255,255,255,.025)
+        ),
+        #070b12;
+      box-shadow:
+        inset 0 0 60px rgba(0,0,0,.9),
+        0 20px 40px rgba(0,0,0,.25);
+    }
+
+    .casino-track {
+      position: absolute;
+      left: 0;
+      top: 50%;
+      height: 210px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      transform: translate3d(0, -50%, 0);
+      will-change: transform;
+    }
+
+    .casino-champion {
+      position: relative;
+      width: 155px;
+      height: 195px;
+      flex: 0 0 155px;
+      overflow: hidden;
+      border-radius: 11px;
+      border: 2px solid #26374a;
+      background: #111923;
+      box-shadow: 0 10px 25px rgba(0,0,0,.5);
+      transition:
+        transform .3s,
+        border-color .3s,
+        filter .3s,
+        box-shadow .3s;
+    }
+
+    .casino-champion img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transform: scale(1.08);
+      user-select: none;
+      pointer-events: none;
+    }
+
+    .casino-champion-name {
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      padding: 35px 5px 12px;
+      text-align: center;
+      background:
+        linear-gradient(
+          transparent,
+          rgba(0,0,0,.97)
+        );
+      color: white;
+      font-size: .8rem;
+      font-weight: 1000;
+      font-style: italic;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .casino-champion.winner {
+      border-color: #e8bd55;
+      box-shadow:
+        0 0 0 2px rgba(232,189,85,.25),
+        0 0 40px rgba(232,189,85,.55);
+      transform: scale(1.07);
+      z-index: 5;
+    }
+
+    .casino-center-zone {
+      position: absolute;
+      z-index: 9;
+      top: 0;
+      bottom: 0;
+      left: 50%;
+      width: 155px;
+      transform: translateX(-50%);
+      border-left: 1px solid rgba(240,230,210,.4);
+      border-right: 1px solid rgba(240,230,210,.4);
+      background:
+        linear-gradient(
+          90deg,
+          transparent,
+          rgba(200,155,60,.04),
+          transparent
+        );
+      pointer-events: none;
+    }
+
+    .casino-center-line {
+      position: absolute;
+      z-index: 10;
+      top: 0;
+      bottom: 0;
+      left: 50%;
+      width: 2px;
+      transform: translateX(-50%);
+      background:
+        linear-gradient(
+          transparent,
+          #e7bd58 20%,
+          #fff0b0 50%,
+          #e7bd58 80%,
+          transparent
+        );
+      opacity: .9;
+      pointer-events: none;
+      box-shadow: 0 0 15px rgba(231,189,88,.5);
+    }
+
+    .casino-shadows {
+      position: absolute;
+      z-index: 8;
+      inset: 0;
+      pointer-events: none;
+      background:
+        linear-gradient(
+          90deg,
+          #070b12 0%,
+          rgba(7,11,18,.95) 4%,
+          transparent 22%,
+          transparent 78%,
+          rgba(7,11,18,.95) 96%,
+          #070b12 100%
+        );
+    }
+
+    .casino-pointer {
+      position: absolute;
+      z-index: 20;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 0;
+      height: 0;
+      filter: drop-shadow(0 5px 8px rgba(0,0,0,.8));
+    }
+
+    .casino-pointer-top {
+      top: -20px;
+      border-left: 18px solid transparent;
+      border-right: 18px solid transparent;
+      border-top: 32px solid #f0e6d2;
+    }
+
+    .casino-pointer-bottom {
+      bottom: -20px;
+      border-left: 18px solid transparent;
+      border-right: 18px solid transparent;
+      border-bottom: 32px solid #f0e6d2;
+    }
+
+    .casino-selected {
+      text-align: center;
+      margin: -35px 0 35px;
+      color: #637083;
+      font-weight: 1000;
+      font-style: italic;
+      font-size: 1.5rem;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      min-height: 30px;
+    }
+
+    .casino-selected.selected {
+      color: #f0e6d2;
+      text-shadow: 0 0 20px rgba(200,155,60,.3);
+    }
+
+    /* =====================================================
+       ROUE BUILD
+    ===================================================== */
+
+    .wheel-area {
+      position: relative;
+      width: min(100%, 540px);
+      aspect-ratio: 1;
+      margin: 30px auto 20px;
+    }
+
+    .pointer {
+      position: absolute;
+      z-index: 10;
+      left: 50%;
+      top: -5px;
+      transform: translateX(-50%);
+      width: 0;
+      height: 0;
+      border-left: 18px solid transparent;
+      border-right: 18px solid transparent;
+      border-top: 42px solid var(--gold-light);
+      filter: drop-shadow(0 5px 6px rgba(0,0,0,.7));
+    }
+
+    canvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+      filter: drop-shadow(0 15px 25px rgba(0,0,0,.5));
+    }
+
+    /* =====================================================
+       BOUTONS
+    ===================================================== */
+
+    .spin {
+      display: block;
+      width: 100%;
+      max-width: 400px;
+      margin: auto;
+      padding: 17px 20px;
+      border: 1px solid var(--gold);
+      background: linear-gradient(180deg, #d8ad4c, #987021);
+      color: #080a0f;
+      font-size: 1rem;
+      font-weight: 1000;
+      font-style: italic;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      cursor: pointer;
+      clip-path: polygon(
+        12px 0,
+        calc(100% - 12px) 0,
+        100% 12px,
+        100% calc(100% - 12px),
+        calc(100% - 12px) 100%,
+        12px 100%,
+        0 calc(100% - 12px),
+        0 12px
+      );
+      transition: .2s;
+    }
+
+    .spin:hover:not(:disabled) {
+      filter: brightness(1.2);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 30px rgba(200,155,60,.25);
+    }
+
+    .spin:disabled {
+      cursor: not-allowed;
+      opacity: .35;
+      transform: none;
+      filter: none;
+    }
+
+    /* =====================================================
+       RESULTAT
+    ===================================================== */
+
+    .result {
+      margin-top: 30px;
+      border: 1px solid rgba(10,200,185,.25);
+      border-radius: 22px;
+      min-height: 170px;
+      background:
+        radial-gradient(
+          circle at 50% 0%,
+          rgba(10,200,185,.12),
+          transparent 50%
+        ),
+        #070b12;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 25px;
+      text-align: center;
+    }
+
+    .waiting {
+      color: #526071;
+      text-transform: uppercase;
+      font-size: .8rem;
+      letter-spacing: 3px;
+      font-weight: 800;
+    }
+
+    .final {
+      display: none;
+      align-items: center;
+      justify-content: center;
+      gap: 25px;
+    }
+
+    .champion-image {
+      width: 105px;
+      height: 105px;
+      object-fit: cover;
+      border-radius: 12px;
+      border: 2px solid var(--gold);
+      box-shadow: 0 0 25px rgba(200,155,60,.25);
+    }
+
+    .final-label {
+      color: var(--gold);
+      text-transform: uppercase;
+      letter-spacing: 3px;
+      font-weight: 900;
+      font-size: .7rem;
+    }
+
+    .champion-name {
+      margin-top: 4px;
+      font-size: clamp(2rem, 4vw, 3.5rem);
+      font-style: italic;
+      font-weight: 1000;
+      text-transform: uppercase;
+      line-height: .95;
+    }
+
+    .build-name {
+      color: var(--blue);
+      font-size: clamp(1.2rem, 3vw, 2rem);
+      font-weight: 1000;
+      text-transform: uppercase;
+      margin-top: 8px;
+    }
+
+    .sentence {
+      margin-top: 9px;
+      color: var(--muted);
+      font-size: .85rem;
+    }
+
+    .reroll {
+      margin: 20px auto 0;
+      display: none;
+      background: transparent;
+      border: 1px solid #2c394b;
+      color: #b8c2cf;
+      border-radius: 8px;
+      padding: 12px 25px;
+      cursor: pointer;
+      text-transform: uppercase;
+      font-weight: 800;
+      letter-spacing: 1px;
+    }
+
+    .reroll:hover {
+      border-color: var(--gold);
+      color: var(--gold-light);
+    }
+
+    .status {
+      text-align: center;
+      color: var(--muted);
+      margin-top: 15px;
+      font-size: .75rem;
+    }
+
+    footer {
+      color: #3f4a58;
+      max-width: 900px;
+      padding: 20px;
+      margin: 0 auto 30px;
+      text-align: center;
+      font-size: .65rem;
+      line-height: 1.6;
+    }
+
+    @media (max-width: 900px) {
+      .wheels {
+        grid-template-columns: 1fr;
+      }
+
+      .card {
+        padding: 20px;
+      }
+
+      .casino {
+        margin-top: 70px;
+      }
+
+      .casino-window {
+        height: 230px;
+      }
+
+      .casino-track {
+        height: 170px;
+      }
+
+      .casino-champion {
+        width: 125px;
+        height: 155px;
+        flex-basis: 125px;
+      }
+
+      .casino-center-zone {
+        width: 125px;
+      }
+
+      .final {
+        flex-direction: column;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+<header>
+  <div class="logo">
+    TROLL<span>PICKS</span>
+  </div>
+
+  <div class="subtitle">
+    League of Legends Randomizer
+  </div>
+</header>
+
+
+<main class="app">
+
+  <section class="wheels">
+
+    <!-- ===================================================
+         CHAMPION CASINO
+    ==================================================== -->
+
+    <article class="card">
+
+      <div class="step">
+        Étape 01
+      </div>
+
+      <h2>
+        Choisis ta victime
+      </h2>
+
+
+      <div class="casino">
+
+        <div class="casino-pointer casino-pointer-top"></div>
+
+        <div class="casino-pointer casino-pointer-bottom"></div>
+
+
+        <div class="casino-window" id="casinoWindow">
+
+          <div
+            class="casino-track"
+            id="casinoTrack"
+          ></div>
+
+          <div class="casino-center-zone"></div>
+
+          <div class="casino-center-line"></div>
+
+          <div class="casino-shadows"></div>
+
+        </div>
+
+      </div>
+
+
+      <div
+        class="casino-selected"
+        id="casinoSelected"
+      >
+        En attente du tirage
+      </div>
+
+
+      <button
+        class="spin"
+        id="championButton"
+        disabled
+      >
+        Chargement...
+      </button>
+
+    </article>
+
+
+    <!-- ===================================================
+         BUILD
+    ==================================================== -->
+
+    <article class="card">
+
+      <div class="step">
+        Étape 02
+      </div>
+
+      <h2>
+        Détruis ton build
+      </h2>
+
+
+      <div class="wheel-area">
+
+        <div class="pointer"></div>
+
+        <canvas
+          id="buildWheel"
+          width="700"
+          height="700"
+        ></canvas>
+
+      </div>
+
+
+      <button
+        class="spin"
+        id="buildButton"
+        disabled
+      >
+        Tourner la roue
+      </button>
+
+    </article>
+
+  </section>
+
+
+  <!-- =====================================================
+       RESULTAT FINAL
+  ====================================================== -->
+
+  <section class="result">
+
+    <div
+      class="waiting"
+      id="waiting"
+    >
+      Tire un champion puis détruis son build.
+    </div>
+
+
+    <div
+      class="final"
+      id="final"
+    >
+
+      <img
+        id="championImage"
+        class="champion-image"
+        alt=""
+      >
+
+
+      <div>
+
+        <div class="final-label">
+          Ton trollpick est
+        </div>
+
+        <div
+          class="champion-name"
+          id="championName"
+        ></div>
+
+        <div
+          class="build-name"
+          id="buildName"
+        ></div>
+
+        <div
+          class="sentence"
+          id="sentence"
+        ></div>
+
+      </div>
+
+    </div>
+
+  </section>
+
+
+  <button
+    class="reroll"
+    id="reroll"
+  >
+    ↻ Relancer le désastre
+  </button>
+
+
+  <div
+    class="status"
+    id="status"
+  >
+    Connexion à Data Dragon...
+  </div>
+
+</main>
+
+
+<footer>
+  TrollPicks n'est pas approuvé par Riot Games et ne reflète pas
+  les opinions de Riot Games ou de toute personne officiellement
+  impliquée dans la production ou la gestion de League of Legends.
+  League of Legends et Riot Games sont des marques de Riot Games, Inc.
+</footer>
+
+
+<script>
+
+  /* =========================================================
+     CONFIG
+  ========================================================= */
+
+  const BUILD_TYPES = [
+    "AP BRUISER",
+    "AP ASSASSIN",
+    "AD BRUISER",
+    "AD CRIT",
+    "AD ASSASSIN",
+    "TANK"
+  ];
+
+
+  const BUILD_COLORS = [
+    "#713bc1",
+    "#a94bf0",
+    "#6b3fc2",
+    "#e4bb51",
+    "#c84255",
+    "#57a29d"
+  ];
+
+
+  const TROLL_SENTENCES = [
+    "Tes mates vont adorer.",
+    "Le lobby n'était pas prêt.",
+    "Le theorycraft a officiellement dépassé les limites.",
+    "Fais confiance au process.",
+    "Ça scale. Probablement.",
+    "Ne montre surtout pas ça à ton coach.",
+    "Le report arrivera après la game.",
+    "Une masterclass est statistiquement possible.",
+    "Riot n'avait probablement pas prévu ça.",
+    "La soloQ vient de prendre des dégâts psychologiques.",
+    "Trust le build.",
+    "C'est légal tant que le Nexus n'explose pas.",
+    "Quelqu'un devait tester.",
+    "La science exige des sacrifices."
+  ];
+
+
+  /* =========================================================
+     STATE
+  ========================================================= */
+
+  let champions = [];
+
+  let ddragonVersion = "";
+
+  let selectedChampion = null;
+
+  let selectedBuild = null;
+
+  let championSpinning = false;
+
+  let buildSpinning = false;
+
+  let buildRotation = 0;
+
+
+  /* =========================================================
+     DOM
+  ========================================================= */
+
+  const casinoTrack =
+    document.getElementById("casinoTrack");
+
+  const casinoWindow =
+    document.getElementById("casinoWindow");
+
+  const casinoSelected =
+    document.getElementById("casinoSelected");
+
+
+  const buildCanvas =
+    document.getElementById("buildWheel");
+
+  const buildCtx =
+    buildCanvas.getContext("2d");
+
+
+  const championButton =
+    document.getElementById("championButton");
+
+  const buildButton =
+    document.getElementById("buildButton");
+
+
+  const waiting =
+    document.getElementById("waiting");
+
+  const final =
+    document.getElementById("final");
+
+
+  const championName =
+    document.getElementById("championName");
+
+  const buildName =
+    document.getElementById("buildName");
+
+  const championImage =
+    document.getElementById("championImage");
+
+  const sentence =
+    document.getElementById("sentence");
+
+
+  const reroll =
+    document.getElementById("reroll");
+
+  const status =
+    document.getElementById("status");
+
+
+  /* =========================================================
+     DATA DRAGON
+  ========================================================= */
+
+  async function loadChampions() {
+
+    try {
+
+      const versionResponse =
+        await fetch(
+          "https://ddragon.leagueoflegends.com/api/versions.json"
+        );
+
+
+      if (!versionResponse.ok) {
+        throw new Error(
+          "Impossible de récupérer la version Data Dragon."
+        );
+      }
+
+
+      const versions =
+        await versionResponse.json();
+
+
+      ddragonVersion =
+        versions[0];
+
+
+      const championsResponse =
+        await fetch(
+          `https://ddragon.leagueoflegends.com/cdn/${ddragonVersion}/data/fr_FR/champion.json`
+        );
+
+
+      if (!championsResponse.ok) {
+        throw new Error(
+          "Impossible de récupérer les champions."
+        );
+      }
+
+
+      const championData =
+        await championsResponse.json();
+
+
+      champions =
+        Object.values(
+          championData.data
+        )
+        .sort(
+          (a, b) =>
+            a.name.localeCompare(
+              b.name,
+              "fr"
+            )
+        );
+
+
+      drawBuildWheel();
+
+
+      createCasinoPreview();
+
+
+      championButton.disabled =
+        false;
+
+
+      championButton.textContent =
+        "🎰 TIRER UN CHAMPION";
+
+
+      buildButton.disabled =
+        true;
+
+
+      status.textContent =
+        `${champions.length} champions chargés • Data Dragon ${ddragonVersion}`;
+
+    }
+
+    catch (error) {
+
+      console.error(error);
+
+
+      status.textContent =
+        "Impossible de charger les champions.";
+
+
+      championButton.textContent =
+        "Erreur de chargement";
+
+    }
+
+  }
+
+
+  /* =========================================================
+     IMAGE CHAMPION
+  ========================================================= */
+
+  function championImageURL(champion) {
+
+    return (
+      `https://ddragon.leagueoflegends.com/` +
+      `cdn/${ddragonVersion}/img/champion/` +
+      champion.image.full
+    );
+
+  }
+
+
+  /* =========================================================
+     CREATION CARTE CASINO
+  ========================================================= */
+
+  function createChampionCard(
+    champion,
+    index
+  ) {
+
+    const card =
+      document.createElement("div");
+
+
+    card.className =
+      "casino-champion";
+
+
+    card.dataset.index =
+      index;
+
+
+    const img =
+      document.createElement("img");
+
+
+    img.src =
+      championImageURL(champion);
+
+
+    img.alt =
+      champion.name;
+
+
+    img.draggable =
+      false;
+
+
+    const name =
+      document.createElement("div");
+
+
+    name.className =
+      "casino-champion-name";
+
+
+    name.textContent =
+      champion.name;
+
+
+    card.appendChild(img);
+
+    card.appendChild(name);
+
+
+    return card;
+
+  }
+
+
+  /* =========================================================
+     PREVIEW CASINO
+  ========================================================= */
+
+  function createCasinoPreview() {
+
+    casinoTrack.innerHTML = "";
+
+
+    const previewAmount = 12;
+
+
+    for (
+      let i = 0;
+      i < previewAmount;
+      i++
+    ) {
+
+      const champion =
+        champions[
+          Math.floor(
+            Math.random() *
+            champions.length
+          )
+        ];
+
+
+      casinoTrack.appendChild(
+        createChampionCard(
+          champion,
+          i
+        )
+      );
+
+    }
+
+
+    casinoTrack.style.transition =
+      "none";
+
+
+    requestAnimationFrame(() => {
+
+      const firstCard =
+        casinoTrack.querySelector(
+          ".casino-champion"
+        );
+
+
+      if (!firstCard) return;
+
+
+      const cardWidth =
+        firstCard.offsetWidth;
+
+
+      const gap =
+        parseFloat(
+          getComputedStyle(
+            casinoTrack
+          ).gap
+        ) || 0;
+
+
+      const centerIndex = 2;
+
+
+      const target =
+        casinoWindow.clientWidth / 2 -
+        (
+          centerIndex *
+          (cardWidth + gap) +
+          cardWidth / 2
+        );
+
+
+      casinoTrack.style.transform =
+        `translate3d(${target}px, -50%, 0)`;
+
+    });
+
+  }
+
+
+  /* =========================================================
+     SPIN CHAMPION
+  ========================================================= */
+
+  function spinChampion() {
+
+    if (
+      championSpinning ||
+      buildSpinning ||
+      !champions.length
+    ) {
+      return;
+    }
+
+
+    championSpinning =
+      true;
+
+
+    selectedChampion =
+      null;
+
+
+    selectedBuild =
+      null;
+
+
+    championButton.disabled =
+      true;
+
+
+    buildButton.disabled =
+      true;
+
+
+    reroll.style.display =
+      "none";
+
+
+    final.style.display =
+      "none";
+
+
+    waiting.style.display =
+      "block";
+
+
+    waiting.textContent =
+      "Le casino choisit ta victime...";
+
+
+    championButton.textContent =
+      "TIRAGE EN COURS...";
+
+
+    buildButton.textContent =
+      "Tourner la roue";
+
+
+    casinoSelected.textContent =
+      "???";
+
+
+    casinoSelected.classList.remove(
+      "selected"
+    );
+
+
+    /*
+      On choisit d'abord le gagnant.
+
+      L'animation ne choisit donc PAS
+      le résultat.
+
+      Elle ne fait qu'emmener le champion
+      tiré sous le curseur.
+    */
+
+    const winner =
+      champions[
+        Math.floor(
+          Math.random() *
+          champions.length
+        )
+      ];
+
+
+    const TOTAL_CARDS =
+      70;
+
+
+    const WINNER_INDEX =
+      62;
+
+
+    const rouletteChampions =
+      [];
+
+
+    for (
+      let i = 0;
+      i < TOTAL_CARDS;
+      i++
+    ) {
+
+      let randomChampion =
+        champions[
+          Math.floor(
+            Math.random() *
+            champions.length
+          )
+        ];
+
+
+      /*
+        Évite simplement d'avoir exactement
+        le même champion plusieurs fois
+        d'affilée dans l'animation.
+      */
+
+      if (
+        i > 0 &&
+        randomChampion.id ===
+        rouletteChampions[i - 1].id
+      ) {
+
+        randomChampion =
+          champions[
+            (
+              champions.indexOf(
+                randomChampion
+              ) + 1
+            ) % champions.length
+          ];
+
+      }
+
+
+      rouletteChampions.push(
+        randomChampion
+      );
+
+    }
+
+
+    rouletteChampions[
+      WINNER_INDEX
+    ] = winner;
+
+
+    casinoTrack.innerHTML =
+      "";
+
+
+    rouletteChampions.forEach(
+      (champion, index) => {
+
+        casinoTrack.appendChild(
+          createChampionCard(
+            champion,
+            index
+          )
+        );
+
+      }
+    );
+
+
+    /*
+      Reset instantané de la bande.
+    */
+
+    casinoTrack.style.transition =
+      "none";
+
+
+    casinoTrack.style.transform =
+      "translate3d(0px, -50%, 0)";
+
+
+    /*
+      Force le navigateur à calculer
+      la mise en page.
+    */
+
+    casinoTrack.offsetHeight;
+
+
+    const firstCard =
+      casinoTrack.querySelector(
+        ".casino-champion"
+      );
+
+
+    const cardWidth =
+      firstCard.offsetWidth;
+
+
+    const computedTrack =
+      getComputedStyle(
+        casinoTrack
+      );
+
+
+    const gap =
+      parseFloat(
+        computedTrack.gap
+      ) || 0;
+
+
+    const step =
+      cardWidth + gap;
+
+
+    /*
+      Centre réel de la carte gagnante.
+    */
+
+    const winnerCenter =
+      WINNER_INDEX * step +
+      cardWidth / 2;
+
+
+    /*
+      Centre de la fenêtre.
+    */
+
+    const windowCenter =
+      casinoWindow.clientWidth / 2;
+
+
+    /*
+      Position finale exacte.
+    */
+
+    const finalX =
+      windowCenter -
+      winnerCenter;
+
+
+    /*
+      On démarre avec quelques cartes
+      déjà visibles.
+
+      Ça évite l'effet de bande qui arrive
+      depuis le vide.
+    */
+
+    const startIndex =
+      2;
+
+
+    const startX =
+      windowCenter -
+      (
+        startIndex * step +
+        cardWidth / 2
+      );
+
+
+    casinoTrack.style.transform =
+      `translate3d(${startX}px, -50%, 0)`;
+
+
+    casinoTrack.offsetHeight;
+
+
+    /*
+      Animation.
+
+      Le cubic-bezier donne une grosse
+      vitesse au départ puis un long
+      ralentissement.
+    */
+
+    requestAnimationFrame(() => {
+
+      requestAnimationFrame(() => {
+
+        casinoTrack.style.transition =
+          "transform 5.2s cubic-bezier(.08,.68,.08,1)";
+
+
+        casinoTrack.style.transform =
+          `translate3d(${finalX}px, -50%, 0)`;
+
+      });
+
+    });
+
+
+    /*
+      FIN
+    */
+
+    setTimeout(() => {
+
+      selectedChampion =
+        winner;
+
+
+      championSpinning =
+        false;
+
+
+      const winnerCard =
+        casinoTrack.querySelector(
+          `[data-index="${WINNER_INDEX}"]`
+        );
+
+
+      if (winnerCard) {
+
+        winnerCard.classList.add(
+          "winner"
+        );
+
+      }
+
+
+      casinoSelected.textContent =
+        winner.name;
+
+
+      casinoSelected.classList.add(
+        "selected"
+      );
+
+
+      championButton.disabled =
+        false;
+
+
+      championButton.textContent =
+        `✓ ${winner.name}`;
+
+
+      buildButton.disabled =
+        false;
+
+
+      waiting.textContent =
+        "Champion choisi. Maintenant détruis son build.";
+
+
+      showResult();
+
+    }, 5300);
+
+  }
+
+
+  /* =========================================================
+     DRAW BUILD WHEEL
+  ========================================================= */
+
+  function drawBuildWheel() {
+
+    const ctx =
+      buildCtx;
+
+
+    const canvas =
+      buildCanvas;
+
+
+    const center =
+      canvas.width / 2;
+
+
+    const radius =
+      center - 12;
+
+
+    const segment =
+      (Math.PI * 2) /
+      BUILD_TYPES.length;
+
+
+    ctx.clearRect(
+      0,
+      0,
+      canvas.width,
+      canvas.height
+    );
+
+
+    BUILD_TYPES.forEach(
+      (build, index) => {
+
+        /*
+          La position 0 correspond au haut.
+
+          On ajoute buildRotation à tous
+          les secteurs.
+        */
+
+        const start =
+          buildRotation +
+          index * segment -
+          Math.PI / 2;
+
+
+        const end =
+          start + segment;
+
+
+        /*
+          SECTEUR
+        */
+
+        ctx.beginPath();
+
+
+        ctx.moveTo(
+          center,
+          center
+        );
+
+
+        ctx.arc(
+          center,
+          center,
+          radius,
+          start,
+          end
+        );
+
+
+        ctx.closePath();
+
+
+        ctx.fillStyle =
+          BUILD_COLORS[index];
+
+
+        ctx.fill();
+
+
+        ctx.strokeStyle =
+          "#070a0f";
+
+
+        ctx.lineWidth =
+          5;
+
+
+        ctx.stroke();
+
+
+        /*
+          TEXTE
+        */
+
+        const middle =
+          start +
+          segment / 2;
+
+
+        ctx.save();
+
+
+        ctx.translate(
+          center,
+          center
+        );
+
+
+        ctx.rotate(
+          middle
+        );
+
+
+        ctx.textAlign =
+          "right";
+
+
+        ctx.textBaseline =
+          "middle";
+
+
+        ctx.fillStyle =
+          "#ffffff";
+
+
+        ctx.font =
+          "900 24px Arial";
+
+
+        ctx.shadowColor =
+          "rgba(0,0,0,.9)";
+
+
+        ctx.shadowBlur =
+          8;
+
+
+        ctx.fillText(
+          build,
+          radius - 35,
+          0
+        );
+
+
+        ctx.restore();
+
+      }
+    );
+
+
+    /*
+      CENTRE
+    */
+
+    ctx.beginPath();
+
+
+    ctx.arc(
+      center,
+      center,
+      90,
+      0,
+      Math.PI * 2
+    );
+
+
+    ctx.fillStyle =
+      "#060a10";
+
+
+    ctx.fill();
+
+
+    ctx.strokeStyle =
+      "#f0e6d2";
+
+
+    ctx.lineWidth =
+      4;
+
+
+    ctx.stroke();
+
+
+    ctx.fillStyle =
+      "#ffffff";
+
+
+    ctx.textAlign =
+      "center";
+
+
+    ctx.textBaseline =
+      "middle";
+
+
+    ctx.font =
+      "900 27px Arial";
+
+
+    ctx.shadowBlur =
+      0;
+
+
+    ctx.fillText(
+      "BUILD",
+      center,
+      center
+    );
+
+  }
+
+
+  /* =========================================================
+     EASING
+  ========================================================= */
+
+  function easeOutQuint(x) {
+
+    return (
+      1 -
+      Math.pow(
+        1 - x,
+        5
+      )
+    );
+
+  }
+
+
+  /* =========================================================
+     ANIMATION BUILD
+  ========================================================= */
+
+  function animateBuildWheel(
+    duration,
+    startRotation,
+    finalRotation,
+    onComplete
+  ) {
+
+    const startTime =
+      performance.now();
+
+
+    function animate(time) {
+
+      const elapsed =
+        time -
+        startTime;
+
+
+      const progress =
+        Math.min(
+          elapsed / duration,
+          1
+        );
+
+
+      const eased =
+        easeOutQuint(
+          progress
+        );
+
+
+      buildRotation =
+        startRotation +
+        (
+          finalRotation -
+          startRotation
+        ) *
+        eased;
+
+
+      drawBuildWheel();
+
+
+      if (
+        progress < 1
+      ) {
+
+        requestAnimationFrame(
+          animate
+        );
+
+      }
+
+      else {
+
+        buildRotation =
+          finalRotation;
+
+
+        drawBuildWheel();
+
+
+        onComplete();
+
+      }
+
+    }
+
+
+    requestAnimationFrame(
+      animate
+    );
+
+  }
+
+
+  /* =========================================================
+     SPIN BUILD
+  ========================================================= */
+
+  function spinBuild() {
+
+    if (
+      buildSpinning ||
+      championSpinning ||
+      !selectedChampion
+    ) {
+      return;
+    }
+
+
+    buildSpinning =
+      true;
+
+
+    selectedBuild =
+      null;
+
+
+    buildButton.disabled =
+      true;
+
+
+    championButton.disabled =
+      true;
+
+
+    buildButton.textContent =
+      "TIRAGE EN COURS...";
+
+
+    /*
+      Choix aléatoire du build.
+    */
+
+    const winnerIndex =
+      Math.floor(
+        Math.random() *
+        BUILD_TYPES.length
+      );
+
+
+    const segment =
+      (Math.PI * 2) /
+      BUILD_TYPES.length;
+
+
+    const TWO_PI =
+      Math.PI * 2;
+
+
+    /*
+      IMPORTANT :
+
+      Le centre du secteur "index" est :
+
+      rotation
+      + index * segment
+      + segment / 2
+      - PI/2
+
+      La flèche est à -PI/2.
+
+      Pour mettre le centre du secteur
+      sous la flèche :
+
+      rotation
+      + index * segment
+      + segment / 2 = 0
+    */
+
+    const desiredRotation =
+      -(
+        winnerIndex *
+        segment +
+        segment / 2
+      );
+
+
+    /*
+      Rotation actuelle normalisée.
+    */
+
+    const currentNormalized =
+      (
+        (
+          buildRotation %
+          TWO_PI
+        ) +
+        TWO_PI
+      ) %
+      TWO_PI;
+
+
+    const targetNormalized =
+      (
+        (
+          desiredRotation %
+          TWO_PI
+        ) +
+        TWO_PI
+      ) %
+      TWO_PI;
+
+
+    /*
+      Distance restante jusqu'à la cible.
+    */
+
+    let delta =
+      targetNormalized -
+      currentNormalized;
+
+
+    if (
+      delta < 0
+    ) {
+
+      delta +=
+        TWO_PI;
+
+    }
+
+
+    /*
+      7 tours complets + cible.
+    */
+
+    const EXTRA_SPINS =
+      7;
+
+
+    const finalRotation =
+      buildRotation +
+      EXTRA_SPINS *
+      TWO_PI +
+      delta;
+
+
+    animateBuildWheel(
+
+      4500,
+
+      buildRotation,
+
+      finalRotation,
+
+      () => {
+
+        selectedBuild =
+          BUILD_TYPES[
+            winnerIndex
+          ];
+
+
+        buildSpinning =
+          false;
+
+
+        buildButton.disabled =
+          false;
+
+
+        championButton.disabled =
+          false;
+
+
+        buildButton.textContent =
+          `✓ ${selectedBuild}`;
+
+
+        showResult();
+
+      }
+
+    );
+
+  }
+
+
+  /* =========================================================
+     RESULTAT
+  ========================================================= */
+
+  function showResult() {
+
+    /*
+      Tant qu'on n'a pas les deux,
+      pas de résultat final.
+    */
+
+    if (
+      !selectedChampion ||
+      !selectedBuild
+    ) {
+
+      final.style.display =
+        "none";
+
+
+      waiting.style.display =
+        "block";
+
+
+      return;
+
+    }
+
+
+    waiting.style.display =
+      "none";
+
+
+    final.style.display =
+      "flex";
+
+
+    championName.textContent =
+      selectedChampion.name;
+
+
+    buildName.textContent =
+      selectedBuild;
+
+
+    championImage.src =
+      championImageURL(
+        selectedChampion
+      );
+
+
+    championImage.alt =
+      selectedChampion.name;
+
+
+    sentence.textContent =
+      TROLL_SENTENCES[
+        Math.floor(
+          Math.random() *
+          TROLL_SENTENCES.length
+        )
+      ];
+
+
+    reroll.style.display =
+      "block";
+
+  }
+
+
+  /* =========================================================
+     RESET
+  ========================================================= */
+
+  function resetGame() {
+
+    if (
+      championSpinning ||
+      buildSpinning
+    ) {
+      return;
+    }
+
+
+    selectedChampion =
+      null;
+
+
+    selectedBuild =
+      null;
+
+
+    championButton.textContent =
+      "🎰 TIRER UN CHAMPION";
+
+
+    buildButton.textContent =
+      "Tourner la roue";
+
+
+    championButton.disabled =
+      false;
+
+
+    buildButton.disabled =
+      true;
+
+
+    casinoSelected.textContent =
+      "En attente du tirage";
+
+
+    casinoSelected.classList.remove(
+      "selected"
+    );
+
+
+    /*
+      Nouvelle preview casino.
+    */
+
+    createCasinoPreview();
+
+
+    /*
+      On peut laisser la roue Build dans
+      sa position actuelle.
+
+      Si tu préfères la remettre à zéro,
+      décommente les deux lignes :
+
+      buildRotation = 0;
+      drawBuildWheel();
+    */
+
+
+    waiting.textContent =
+      "Tire un champion puis détruis son build.";
+
+
+    waiting.style.display =
+      "block";
+
+
+    final.style.display =
+      "none";
+
+
+    reroll.style.display =
+      "none";
+
+
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth"
+    });
+
+  }
+
+
+  /* =========================================================
+     EVENTS
+  ========================================================= */
+
+  championButton.addEventListener(
+    "click",
+    spinChampion
+  );
+
+
+  buildButton.addEventListener(
+    "click",
+    spinBuild
+  );
+
+
+  reroll.addEventListener(
+    "click",
+    resetGame
+  );
+
+
+  /* =========================================================
+     START
+  ========================================================= */
+
+  drawBuildWheel();
+
+  loadChampions();
+
+</script>
+
+</body>
+</html>
